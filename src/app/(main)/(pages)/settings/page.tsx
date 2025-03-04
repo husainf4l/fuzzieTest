@@ -1,9 +1,26 @@
+import ProfileForm from "@/components/forms/profile-forms";
 import React from "react";
+import ProfilePicture from "./_components/profile-picture";
+import { db } from "@/lib/db";
 
 type Props = {};
 
 function Settings({}: Props) {
-  //WIP Wire up profile
+  const removeProfileImage = async () => {
+    "use server";
+    const response = await db.user.update({
+      where: {
+        email: "",
+
+        // clerkId: authUser.id,
+      },
+      data: {
+        profileImage: "",
+      },
+    });
+    return response;
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="sticky top-0 z-[10] flex items-center justify-between border-b bg-background/50 p-6 text-4xl backdrop-blur-lg">
@@ -16,6 +33,12 @@ function Settings({}: Props) {
             Add or update information
           </p>
         </div>
+        <ProfilePicture
+          onDelete={removeProfileImage}
+          userImage={""}
+          onUpload={"uploadProfileImage"}
+        />
+        <ProfileForm />
       </div>
     </div>
   );
