@@ -1,24 +1,57 @@
-import ProfileForm from "@/components/forms/profile-forms";
+// import ProfileForm from "@/components/forms/profile-form";
 import React from "react";
 import ProfilePicture from "./_components/profile-picture";
 import { db } from "@/lib/db";
+import { currentUser } from "@clerk/nextjs";
+import ProfileForm from "@/components/forms/profile-forms";
 
 type Props = {};
 
-function Settings({}: Props) {
+const Settings = async (props: Props) => {
+  const authUser = await currentUser();
+  if (!authUser) return null;
+
+  const user = await db.user.findUnique({ where: { clerkId: authUser.id } });
   const removeProfileImage = async () => {
     "use server";
     const response = await db.user.update({
       where: {
-        email: "",
-
-        // clerkId: authUser.id,
+        clerkId: authUser.id,
       },
       data: {
         profileImage: "",
       },
     });
     return response;
+  };
+
+  const uploadProfileImage = async (image: string) => {
+    "use server";
+    const id = authUser.id;
+    const response = await db.user.update({
+      where: {
+        clerkId: id,
+      },
+      data: {
+        profileImage: image,
+      },
+    });
+
+    return response;
+  };
+
+  const updateUserInfo = async (name: string) => {
+    "use server";
+
+    const updateUser = await db.user.update({
+      where: {
+        clerkId: authUser.id,
+      },
+      data: {
+        name,
+      },
+    });
+    return updateUser;
   };
 
   return (
@@ -29,19 +62,19 @@ function Settings({}: Props) {
       <div className="flex flex-col gap-10 p-6">
         <div>
           <h2 className="text-2xl font-bold">User Profile</h2>
-          <p className="text-base dark:text-white/50">
-            Add or update information
+          <p className="text-base text-white/50">
+            Add or update your information
           </p>
         </div>
         <ProfilePicture
           onDelete={removeProfileImage}
-          userImage={""}
-          onUpload={"uploadProfileImage"}
+          userImage={user?.profileImage || ""}
+          onUpload={uploadProfileImage}
         />
-        <ProfileForm />
+        <ProfileForm user={user} onUpdate={updateUserInfo} />
       </div>
     </div>
   );
-}
+};
 
 export default Settings;

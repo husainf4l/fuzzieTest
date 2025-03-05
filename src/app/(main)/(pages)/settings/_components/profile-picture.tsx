@@ -28,8 +28,10 @@ const ProfilePicture = ({ userImage, onDelete, onUpload }: Props) => {
       <div className="flex h-[30vh] flex-col items-center justify-center">
         {userImage ? (
           <>
-            <div className="relative h-full w-2/12">
-              <Image src={userImage} alt="User_Image" fill />
+            <div className="relative h-40 w-40 md:h-80 md:w-80 mb-2">
+              <div>
+                <Image src={userImage} alt="User_Image" fill className="" />
+              </div>
             </div>
             <Button
               onClick={onRemoveProfileImage}

@@ -11,30 +11,30 @@ LR.registerBlocks(LR);
 
 const UploadCareButton = ({ onUpload }: Props) => {
   const router = useRouter();
-  const ctxProviderRef = useRef<HTMLElement | null>(null);
+  const ctxProviderRef = useRef<HTMLElement | null>(null); // Use HTMLElement for event listeners
 
   useEffect(() => {
-    if (!ctxProviderRef.current) return;
-
-    const handleUpload = async (e: any) => {
-      const file = await onUpload(e.detail.cdnUrl);
-      if (file) {
-        router.refresh();
+    const handleUpload = async (e: Event) => {
+      const customEvent = e as CustomEvent<{ cdnUrl: string }>;
+      if (customEvent.detail?.cdnUrl) {
+        const file = await onUpload(customEvent.detail.cdnUrl);
+        if (file) {
+          router.refresh();
+        }
       }
     };
 
-    ctxProviderRef.current.addEventListener(
-      "file-upload-success",
-      handleUpload
-    );
+    const ctxElement = ctxProviderRef.current;
+    if (ctxElement) {
+      ctxElement.addEventListener("file-upload-success", handleUpload);
+    }
 
     return () => {
-      ctxProviderRef.current?.removeEventListener(
-        "file-upload-success",
-        handleUpload
-      );
+      if (ctxElement) {
+        ctxElement.removeEventListener("file-upload-success", handleUpload);
+      }
     };
-  }, []);
+  }, [onUpload, router]);
 
   return (
     <div>
@@ -42,10 +42,16 @@ const UploadCareButton = ({ onUpload }: Props) => {
 
       <lr-file-uploader-regular
         ctx-name="my-uploader"
-        css-src={`https://cdn.jsdelivr.net/npm/@uploadcare/blocks@0.35.2/web/lr-file-uploader-regular.min.css`}
+        css-src="https://cdn.jsdelivr.net/npm/@uploadcare/blocks@0.35.2/web/lr-file-uploader-regular.min.css"
       />
 
-      {/* <lr-upload-ctx-provider ctx-name="my-uploader" ref={ctxProviderRef} /> */}
+      {/* Assign ref properly using HTMLElement */}
+      <lr-upload-ctx-provider
+        ctx-name="my-uploader"
+        ref={(el) => {
+          ctxProviderRef.current = el as HTMLElement | null;
+        }}
+      />
     </div>
   );
 };
