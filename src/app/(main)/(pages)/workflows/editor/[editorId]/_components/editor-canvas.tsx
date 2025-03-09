@@ -35,7 +35,7 @@ function EditorCanvas({}: Props) {
     []
   );
 
-  return <ResizablePanelGroup>direction = "horizontal"</ResizablePanelGroup>;
+  return <ResizablePanelGroup>direction = "horizontal" c</ResizablePanelGroup>;
 }
 
 export default EditorCanvas;
